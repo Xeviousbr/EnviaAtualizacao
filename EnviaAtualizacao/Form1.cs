@@ -29,5 +29,12 @@ namespace EnviaAtualizacao
         {
             button1.Enabled = (textBox1.Text.Length > 0);
         }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            INI cINI = new INI();
+            string Pasta = cINI.ReadString("EnviaAtualizacao", "Pasta", "");
+            int x = 0;
+        }
     }
 }
