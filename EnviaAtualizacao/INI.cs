@@ -17,7 +17,7 @@ namespace EnviaAtualizacao
         }
         public INI()
         {
-            FileName = @"C:\Entregas\TeleBonifacio.ini";
+            FileName = Path.ChangeExtension(Application.ExecutablePath, ".ini");
         }
 
         #endregion

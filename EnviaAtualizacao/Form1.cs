@@ -3,8 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 
-// Escrever um arquivo versao.txt com a versão e o texto
-// Ler no INI o caminho a ser enviado
 // Enviar o executável e a versão para o FTP
 // Atualizar o Progress
 // Encerrar o programa
@@ -15,6 +13,7 @@ namespace EnviaAtualizacao
     {
         private string vVersao = "";
         private string Pasta = "";
+        private string Arq = "";
 
         public Form1()
         {
@@ -30,7 +29,7 @@ namespace EnviaAtualizacao
         {
             INI cINI = new INI();
             Pasta = cINI.ReadString("EnviaAtualizacao", "Pasta", "");
-            string Arq = cINI.ReadString("EnviaAtualizacao", "Arq", "");
+            Arq = cINI.ReadString("EnviaAtualizacao", "Arq", "");
             string Programa = Path.Combine(Pasta, Arq);
             FileVersionInfo versaoInfo = FileVersionInfo.GetVersionInfo(Programa);
             vVersao = versaoInfo.ProductVersion.Substring(0, 5);
@@ -40,15 +39,23 @@ namespace EnviaAtualizacao
         private void button1_Click(object sender, EventArgs e)
         {
             string caminhoArquivo = Path.Combine(Pasta, "versao.txt");
-            try
+            File.WriteAllText(caminhoArquivo, vVersao + Environment.NewLine);
+            File.AppendAllText(caminhoArquivo, textBox1.Text.ToUpper());
+            INI MeuIni = new INI();
+            string host = MeuIni.ReadString("Config", "host", "");
+            string user = MeuIni.ReadString("Config", "user", "");
+            string pass = MeuIni.ReadString("Config", "pass", "");
+            FTP cFPT = new FTP(host, user, pass);
+            cFPT.setBarra(ref progressBar1);
+            if (cFPT.Upload(Arq, Pasta))
             {
-                File.WriteAllText(caminhoArquivo, vVersao + Environment.NewLine);
-                File.AppendAllText(caminhoArquivo, textBox1.Text.ToUpper());
-                MessageBox.Show("Arquivo versao.txt criado com sucesso.", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                cFPT.Upload("versao.txt", Pasta);
+                MessageBox.Show("Atualização " + vVersao + " Enviada ao FTP", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Environment.Exit(0);
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show($"Erro ao criar o arquivo versao.txt: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Erro no envio ao ftp.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
