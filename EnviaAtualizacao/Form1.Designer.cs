@@ -32,6 +32,7 @@ namespace EnviaAtualizacao
             this.button1 = new System.Windows.Forms.Button();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.txSql = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // button1
@@ -50,7 +51,7 @@ namespace EnviaAtualizacao
             this.progressBar1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.progressBar1.Location = new System.Drawing.Point(0, 0);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(426, 95);
+            this.progressBar1.Size = new System.Drawing.Size(426, 245);
             this.progressBar1.TabIndex = 1;
             this.progressBar1.Visible = false;
             // 
@@ -62,11 +63,20 @@ namespace EnviaAtualizacao
             this.textBox1.TabIndex = 2;
             this.textBox1.KeyUp += new System.Windows.Forms.KeyEventHandler(this.textBox1_KeyUp);
             // 
+            // txSql
+            // 
+            this.txSql.Location = new System.Drawing.Point(0, 99);
+            this.txSql.Multiline = true;
+            this.txSql.Name = "txSql";
+            this.txSql.Size = new System.Drawing.Size(426, 134);
+            this.txSql.TabIndex = 3;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(426, 95);
+            this.ClientSize = new System.Drawing.Size(426, 245);
+            this.Controls.Add(this.txSql);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.progressBar1);
@@ -85,6 +95,7 @@ namespace EnviaAtualizacao
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox txSql;
     }
 }
 

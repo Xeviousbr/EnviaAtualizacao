@@ -41,6 +41,10 @@ namespace EnviaAtualizacao
             string caminhoArquivo = Path.Combine(Pasta, "versao.txt");
             File.WriteAllText(caminhoArquivo, vVersao + Environment.NewLine);
             File.AppendAllText(caminhoArquivo, textBox1.Text.ToUpper());
+            if (txSql.Text.Length>0)
+            {
+                File.AppendAllText(caminhoArquivo, txSql.Text);
+            }
             INI MeuIni = new INI();
             string host = MeuIni.ReadString("Config", "host", "");
             string user = MeuIni.ReadString("Config", "user", "");
