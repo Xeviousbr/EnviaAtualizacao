@@ -38,12 +38,12 @@ namespace EnviaAtualizacao
 
         private void button1_Click(object sender, EventArgs e)
         {
-            string caminhoArquivo = Path.Combine(Pasta, "versao.txt");
-            File.WriteAllText(caminhoArquivo, vVersao + Environment.NewLine);
-            File.AppendAllText(caminhoArquivo, textBox1.Text.ToUpper());
+            string caminhoArquivoV = Path.Combine(Pasta, "versao.txt");
+            File.WriteAllText(caminhoArquivoV, vVersao + Environment.NewLine);
+            File.AppendAllText(caminhoArquivoV, textBox1.Text.ToUpper());
             if (txSql.Text.Length>0)
             {
-                File.AppendAllText(caminhoArquivo, txSql.Text);
+                File.AppendAllText(caminhoArquivoV, txSql.Text);
             }
             INI MeuIni = new INI();
             string host = MeuIni.ReadString("Config", "host", "");
@@ -51,9 +51,11 @@ namespace EnviaAtualizacao
             string pass = MeuIni.ReadString("Config", "pass", "");
             FTP cFPT = new FTP(host, user, pass);
             cFPT.setBarra(ref progressBar1);
-            if (cFPT.Upload(Arq, Pasta))
+            string PastaBaseFTP = @"\\public_html\\public\\entregas\\";
+            string caminhoArquivo = @"C:\Prog\T-Bonifacio\T-Bonifacio\bin\Release\TeleBonifacio.exe";
+            if (cFPT.Upload(caminhoArquivo, PastaBaseFTP))
             {
-                cFPT.Upload("versao.txt", Pasta);
+                cFPT.Upload(caminhoArquivoV, PastaBaseFTP);
                 MessageBox.Show("Atualização " + vVersao + " Enviada ao FTP", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Environment.Exit(0);
             }
