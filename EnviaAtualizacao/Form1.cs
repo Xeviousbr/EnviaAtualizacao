@@ -11,9 +11,11 @@ namespace EnviaAtualizacao
 {
     public partial class Form1 : Form
     {
+        private INI cINI;
         private string vVersao = "";
         private string Pasta = "";
         private string Arq = "";
+        private int VerAgra = 0;
 
         public Form1()
         {
@@ -27,13 +29,20 @@ namespace EnviaAtualizacao
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            INI cINI = new INI();
+            cINI = new INI();
             Pasta = cINI.ReadString("EnviaAtualizacao", "Pasta", "");
             Arq = cINI.ReadString("EnviaAtualizacao", "Arq", "");
+            int UltVerEnv = cINI.ReadInt("EnviaAtualizacao", "UltVerEnv", 0);
+            UltVerEnv = 195;
             string Programa = Path.Combine(Pasta, Arq);
             FileVersionInfo versaoInfo = FileVersionInfo.GetVersionInfo(Programa);
             vVersao = versaoInfo.ProductVersion.Substring(0, 5);
             this.Text = "Praparar versão " + vVersao;
+            int VerAgra = Convert.ToInt32(vVersao.Replace(".", ""));
+            if ((VerAgra- UltVerEnv)<1)
+            {
+                MessageBox.Show("Ultima versão enviada " + UltVerEnv.ToString(), "Atualização já enviada", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -45,10 +54,10 @@ namespace EnviaAtualizacao
             {
                 File.AppendAllText(caminhoArquivoV, txSql.Text);
             }
-            INI MeuIni = new INI();
-            string host = MeuIni.ReadString("Config", "host", "");
-            string user = MeuIni.ReadString("Config", "user", "");
-            string pass = MeuIni.ReadString("Config", "pass", "");
+            INI cINI = new INI();
+            string host = cINI.ReadString("Config", "host", "");
+            string user = cINI.ReadString("Config", "user", "");
+            string pass = cINI.ReadString("Config", "pass", "");
             FTP cFPT = new FTP(host, user, pass);
             cFPT.setBarra(ref progressBar1);
             string PastaBaseFTP = @"\\public_html\\public\\entregas\\";
@@ -56,6 +65,7 @@ namespace EnviaAtualizacao
             if (cFPT.Upload(caminhoArquivo, PastaBaseFTP))
             {
                 cFPT.Upload(caminhoArquivoV, PastaBaseFTP);
+                cINI.WriteInt("EnviaAtualizacao", "UltVerEnv", 0);
                 MessageBox.Show("Atualização " + vVersao + " Enviada ao FTP", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Environment.Exit(0);
             }
