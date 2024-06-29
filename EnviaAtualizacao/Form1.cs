@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Windows.Forms;
 
 // Enviar o executável e a versão para o FTP
@@ -48,12 +49,16 @@ namespace EnviaAtualizacao
         private void button1_Click(object sender, EventArgs e)
         {
             string caminhoArquivoV = Path.Combine(Pasta, "versao.txt");
-            File.WriteAllText(caminhoArquivoV, vVersao + Environment.NewLine);
-            File.AppendAllText(caminhoArquivoV, textBox1.Text.ToUpper());
-            if (txSql.Text.Length>0)
+            StringBuilder conteudo = new StringBuilder();
+            conteudo.Append(vVersao);
+            conteudo.Append("|");
+            conteudo.Append(textBox1.Text.ToUpper());
+            if (!string.IsNullOrEmpty(txSql.Text))
             {
-                File.AppendAllText(caminhoArquivoV, txSql.Text);
+                conteudo.Append("|");
+                conteudo.Append(txSql.Text);
             }
+            File.WriteAllText(caminhoArquivoV, conteudo.ToString());
             INI cINI = new INI();
             string host = cINI.ReadString("Config", "host", "");
             string user = cINI.ReadString("Config", "user", "");
