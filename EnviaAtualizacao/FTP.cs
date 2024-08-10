@@ -46,6 +46,99 @@ namespace EnviaAtualizacao
         {
         }
 
+        public bool UploadMultiplo(List<string> arquivos, string Caminho)
+        {
+            this.Tot = 0;
+            string Cam = Caminho.Replace(@"\", @"/");
+
+            // Calcular o tamanho total de todos os arquivos
+            long tamanhoTotal = arquivos.Sum(arquivo => new FileInfo(arquivo).Length);
+
+            this.ProgressBar1.Visible = true;
+            this.ProgressBar1.Maximum = (int)tamanhoTotal;
+            this.ProgressBar1.Value = 0;
+            this.ProgressBar1.Enabled = true;
+
+            bool todosEnviados = true;
+
+            foreach (string arquivo in arquivos)
+            {
+                FileInfo _arquivoInfo = new FileInfo(arquivo);
+                string Suri = "ftp://" + this.ftpIPServidor + @"/" + Cam + _arquivoInfo.Name;
+                FtpWebRequest requisicaoFTP = (FtpWebRequest)FtpWebRequest.Create(new Uri(Suri));
+                requisicaoFTP.Credentials = new NetworkCredential(this.ftpUsuarioID, this.ftpSenha);
+                requisicaoFTP.KeepAlive = true; // Manter a conexão aberta
+                requisicaoFTP.Method = WebRequestMethods.Ftp.UploadFile;
+                requisicaoFTP.UseBinary = true;
+                requisicaoFTP.ContentLength = _arquivoInfo.Length;
+
+                using (FileStream fs = _arquivoInfo.OpenRead())
+                {
+                    bool enviado = false;
+                    while (!enviado)
+                    {
+                        string ret = this.UploadEmSi(requisicaoFTP, fs);
+                        if (ret == "")
+                        {
+                            enviado = true;
+                        }
+                        else if (ret.IndexOf("553") > 0)
+                        {
+                            if (!CriarDiretorio(Cam))
+                            {
+                                todosEnviados = false;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show(ret, "Erro não tratado");
+                            todosEnviados = false;
+                            break;
+                        }
+                    }
+
+                    if (!todosEnviados)
+                    {
+                        break;
+                    }
+                }
+                try
+                {
+                    this.ProgressBar1.Value += (int)_arquivoInfo.Length;
+                }
+                catch (Exception)
+                {
+                    // throw;
+                }                
+            }
+
+            return todosEnviados;
+        }
+
+        private bool CriarDiretorio(string Cam)
+        {
+            string sUrlD = "ftp://" + this.ftpIPServidor + Cam;
+            FtpWebRequest requestCD = (FtpWebRequest)FtpWebRequest.Create(new Uri(sUrlD));
+            requestCD.Credentials = new NetworkCredential(this.ftpUsuarioID, this.ftpSenha);
+            requestCD.KeepAlive = false;
+            requestCD.Method = WebRequestMethods.Ftp.MakeDirectory;
+
+            try
+            {
+                using (var resp = (FtpWebResponse)requestCD.GetResponse())
+                {
+                    Console.WriteLine(resp.StatusCode);
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Não foi possível criar o diretório", "Erro");
+                return false;
+            }
+        }
+
         public bool Upload(string _nomeArquivo, string Caminho)
         {
             this.Tot = 0;
