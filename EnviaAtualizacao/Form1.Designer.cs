@@ -33,12 +33,13 @@ namespace EnviaAtualizacao
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.txSql = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // button1
             // 
             this.button1.Enabled = false;
-            this.button1.Location = new System.Drawing.Point(175, 21);
+            this.button1.Location = new System.Drawing.Point(170, 41);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 0;
@@ -71,11 +72,19 @@ namespace EnviaAtualizacao
             this.txSql.Size = new System.Drawing.Size(426, 134);
             this.txSql.TabIndex = 3;
             // 
+            // label1
+            // 
+            this.label1.Location = new System.Drawing.Point(8, 8);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(156, 56);
+            this.label1.TabIndex = 4;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(426, 245);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.txSql);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.button1);
@@ -96,6 +105,7 @@ namespace EnviaAtualizacao
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox txSql;
+        private System.Windows.Forms.Label label1;
     }
 }
 

@@ -6,20 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-// Enviar o executável e a versão para o FTP
-// Atualizar o Progress
-// Encerrar o programa
-
 namespace EnviaAtualizacao
 {
     public partial class Form1 : Form
     {
         private INI cINI;
         private string vVersao = "";
-        //private string Pasta = "";
-
         List<(string caminho, int versao)> arquivos = new List<(string, int)>();
-        // List<string> arquivos = new List<string>();
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -35,6 +28,7 @@ namespace EnviaAtualizacao
                 Int32 Versao = ObterVersaoArquivo(caminhoArquivo);
                 if (Versao > vIni)
                 {
+                    label1.Text += nomeDoArquivo + Environment.NewLine;
                     arquivos.Add((caminhoArquivo, Versao));
                 }
                 if (i==0)
@@ -42,6 +36,11 @@ namespace EnviaAtualizacao
                     vVersao = FormatarVersao(Versao);
                     this.Text = $"Versão {vVersao}";
                 }
+            }
+            if (arquivos.Count==0)
+            {
+                textBox1.Enabled = false;
+                MessageBox.Show("Arquivos atualizados", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -62,7 +61,6 @@ namespace EnviaAtualizacao
         {
             button1.Enabled = (textBox1.Text.Length > 0);
         }
-
 
         private int ObterVersaoArquivo(string caminhoArquivo)
         {
@@ -121,18 +119,15 @@ namespace EnviaAtualizacao
             FTP cFPT = new FTP(host, user, pass);
             cFPT.setBarra(ref progressBar1);
             string PastaBaseFTP = @"\\public_html\\public\\entregas\\";
-
             List<string> caminhosDosArquivos = arquivos.Select(a => a.caminho).ToList();
-
             if (cFPT.UploadMultiplo(caminhosDosArquivos, PastaBaseFTP))
             {
-                // Gravar no INI
-                foreach (var (caminho, versao) in arquivos)
+                for (int i = 0; i < arquivos.Count - 2; i++)
                 {
+                    var (caminho, versao) = arquivos[i];
                     string nomeArquivo = Path.GetFileNameWithoutExtension(caminho);
-                    cINI.WriteInt("EnviaAtualizacao", "Ver" + nomeArquivo, versao);
+                    cINI.WriteInt("ListaObservar", "Ver" + nomeArquivo, versao);
                 }
-
                 MessageBox.Show("Atualização " + vVersao + " Enviada ao FTP", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Environment.Exit(0);
             }
@@ -140,131 +135,10 @@ namespace EnviaAtualizacao
             {
                 MessageBox.Show("Erro no envio ao ftp.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        //private void button1_Click(object sender, EventArgs e)
-        //{
-        //    string caminhoArquivoV = Path.Combine(Pasta, "versao.txt");
-        //    StringBuilder conteudo = new StringBuilder();
-        //    conteudo.Append(vVersao);
-        //    conteudo.Append(";");
-        //    conteudo.Append(textBox1.Text.ToUpper());
-        //    if (!string.IsNullOrEmpty(txSql.Text))
-        //    {
-        //        conteudo.Append(";");
-        //        conteudo.Append(txSql.Text);
-        //    }
-        //    File.WriteAllText(caminhoArquivoV, conteudo.ToString());
-
-        //    // Criar arquivo arquivos.txt
-        //    string caminhoArquivosTxt = Path.Combine(Pasta, "arquivos.txt");
-        //    StringBuilder conteudoArquivos = new StringBuilder();
-        //    foreach (var arquivo in arquivos)
-        //    {
-        //        conteudoArquivos.Append(Path.GetFileName(arquivo)).Append(";");
-        //    }
-        //    File.WriteAllText(caminhoArquivosTxt, conteudoArquivos.ToString().TrimEnd(';'));
-
-        //    // Adicionar arquivos.txt e versao.txt à lista de arquivos
-        //    arquivos.Add(caminhoArquivosTxt);
-        //    arquivos.Add(caminhoArquivoV);
-
-        //    INI cINI = new INI();
-        //    string host = cINI.ReadString("Config", "host", "");
-        //    string user = cINI.ReadString("Config", "user", "");
-        //    string pass = cINI.ReadString("Config", "pass", "");
-        //    FTP cFPT = new FTP(host, user, pass);
-        //    cFPT.setBarra(ref progressBar1);
-        //    string PastaBaseFTP = @"\\public_html\\public\\entregas\\";
-
-        //    if (cFPT.UploadMultiplo(arquivos, PastaBaseFTP))
-        //    {
-        //        // Gravar no INI
-        //        for (int i = 0; i < arquivos.Count; i++)
-        //        {
-        //            string nomeArquivo = Path.GetFileNameWithoutExtension(arquivos[i]);
-        //            int versaoArquivo = ObterVersaoArquivo(arquivos[i]);
-        //            cINI.WriteInt("EnviaAtualizacao", "Ver" + nomeArquivo, versaoArquivo);
-        //        }
-
-        //        MessageBox.Show("Atualização " + vVersao + " Enviada ao FTP", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        //        Environment.Exit(0);
-        //    }
-        //    else
-        //    {
-        //        MessageBox.Show("Erro no envio ao ftp.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //    }
-        //}
-
-        //private string ObterVersaoArquivo(string caminhoArquivo)
-        //{
-        //    try
-        //    {
-        //        FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(caminhoArquivo);
-        //        Version version = new Version(versionInfo.FileVersion);
-
-        //        // Formata a versão como um número de três partes
-        //        return $"{version.Major:D1}{version.Minor:D2}{version.Build:D2}";
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Trate a exceção conforme necessário (por exemplo, log do erro)
-        //        Console.WriteLine($"Erro ao obter versão do arquivo: {ex.Message}");
-        //        return "000000"; // Ou outro valor padrão
-        //    }
-        //}
-
-        //private void button1_Click(object sender, EventArgs e)
-        //{
-        //    string caminhoArquivoV = Path.Combine(Pasta, "versao.txt");
-        //    StringBuilder conteudo = new StringBuilder();
-        //    conteudo.Append(vVersao);
-        //    conteudo.Append(";");
-        //    conteudo.Append(textBox1.Text.ToUpper());
-        //    if (!string.IsNullOrEmpty(txSql.Text))
-        //    {
-        //        conteudo.Append(";");
-        //        conteudo.Append(txSql.Text);
-        //    }
-        //    File.WriteAllText(caminhoArquivoV, conteudo.ToString());
-        //    INI cINI = new INI();
-        //    string host = cINI.ReadString("Config", "host", "");
-        //    string user = cINI.ReadString("Config", "user", "");
-        //    string pass = cINI.ReadString("Config", "pass", "");
-        //    FTP cFPT = new FTP(host, user, pass);
-        //    cFPT.setBarra(ref progressBar1);
-        //    string PastaBaseFTP = @"\\public_html\\public\\entregas\\";
-
-        //    // CRIAR UM ARQUIVO NA PASTA LOCAL COM O NOME DE arquivos.txt e deve ter os nomes dos arquivos enviados, separados por ;
-        //    // arquivos.txt DEVE SER ADICIONADO A arquivos
-
-        //    // versao.txt TAMBÉM DEVE SER ADICIONADO A arquivos
-
-        //    // string caminhoArquivo = @"C:\Prog\T-Bonifacio\T-Bonifacio\bin\Release\TeleBonifacio.exe";
-
-        //    // TROCAR O PRIMEIRO PARAMETRO PELO arquivos
-        //    if (cFPT.Upload(caminhoArquivo, PastaBaseFTP))
-        //    {
-        //        // cFPT.Upload(caminhoArquivoV, PastaBaseFTP);
-        //        // cINI.WriteInt("EnviaAtualizacao", "UltVerEnv", 0);
-
-        //        // GRAVAR NO INI
-        //        // TODOS ARQUIVOS LIDOS ANTERIORMENTE
-        //        // POR EXEMPLO SE O NOME DO ARQUIVO É TeleBonifacio
-        //        // DEVE GRAVAR A VERSÃO DO ARQUIVO EM VerTeleBonifacio
-
-        //        MessageBox.Show("Atualização " + vVersao + " Enviada ao FTP", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        //        Environment.Exit(0);
-        //    }
-        //    else
-        //    {
-        //        MessageBox.Show("Erro no envio ao ftp.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //    }
-        //}
+        }        
 
     }
 }
-
 
 public class ArquivoInfo
 {
