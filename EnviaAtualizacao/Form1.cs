@@ -128,14 +128,31 @@ namespace EnviaAtualizacao
                     string nomeArquivo = Path.GetFileNameWithoutExtension(caminho);
                     cINI.WriteInt("ListaObservar", "Ver" + nomeArquivo, versao);
                 }
-                MessageBox.Show("Atualização " + vVersao + " Enviada ao FTP", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                // Criar a subpasta relacionada à versão
+                string pastaFoi = Path.Combine(Pasta, "Foi");
+                string versaoFormatada = vVersao.Replace(".", "");
+                string caminhoPastaVersao = Path.Combine(pastaFoi, versaoFormatada);
+
+                if (!Directory.Exists(caminhoPastaVersao))
+                {
+                    Directory.CreateDirectory(caminhoPastaVersao);
+                }
+
+                foreach (var (caminho, _) in arquivos)
+                {
+                    string destino = Path.Combine(caminhoPastaVersao, Path.GetFileName(caminho));
+                    File.Copy(caminho, destino);
+                }
+
+                MessageBox.Show("Atualização " + vVersao + " Enviada ao FTP e arquivos movidos para a pasta " + caminhoPastaVersao, "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Environment.Exit(0);
             }
             else
             {
                 MessageBox.Show("Erro no envio ao ftp.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }        
+        }
 
     }
 }
